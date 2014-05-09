@@ -1,0 +1,127 @@
+Getting started with this template...
+Bart McGuyer, 12/15/2011 
+
+#### Igor Exchange "Expt Procedures" Project Summary ####
+(http://www.igorexchange.com/project/Expt_Procedures)
+
+Template with an experiment file and several procedure files to help 
+simplify data acquisition and management in Igor Pro.  Includes generic 
+data-taking routines, a convention for identifying data with unique 
+serial numbers, procedure files to simplify data acquisition (see 
+"DAQ Procedures" Project) with GPIB, NIDAQ, serial port, and VISA, and 
+procedure files to work with a few common SRS lockin amplifiers and 
+Tektronix oscilloscopes.  Each file contains its own documentation, 
+and the experiment file contains a "GettingStarted" notebook.  
+
+Some of this template builds on "Alex Procedures," a very useful set 
+of Igor Pro procedures written by Dr. Alex Johnson while working for 
+Professor Charles Marcus at Harvard.  "Alex Procedures" is documented 
+in Appendix D of its author's Ph.D. dissertation, and is available 
+online at:
+	http://marcuslab.harvard.edu/how_to/alexprocedures.zip
+In particular, "Expt_Data.ipf" and "Expt_Analysis.ipf" were inspired 
+by "alexdata.ipf" and "alexanalysis.ipf", and the "2D-Graph Profile 
+Utility" of "Expt_Graph_Utilities.ipf" is based off a similar feature 
+from "alexanalysis.ipf".  
+However, this template is not compatible with "Alex Procedures." 
+
+For example, "Expt_Data.ipf" provides the functions setval() and 
+getval() to identify different experimental parameters with strings, 
+so that functions like do1d() can sweep arbitrary parameters in order 
+to produce a data set of one or more waves.  "Expt_Analysis.ipf" 
+provides conventions for do1d() to assign a unique serial number 
+to the data set, and to archive useful information in the wavenotes 
+of the data waves.  This allows you to later use a serial number with 
+shownum() to graph a data set with automatically labeled axes.  
+
+This template uses optional conditional computation (#if) to ease 
+sharing between multiple computers.  These statements require Igor 
+Pro v6 or higher, and should be commented out for earlier versions.  
+
+
+#### Contents of this Template ####
+
+"Expt_Procedures.zip" contains:  
+(1) This experiment file ("2011-12-15 Template.pxp").
+	Includes code in its internal Procedure file and some example data.  
+(2) A "Procedures" folder containing the following procedure files:
+(3) "Expt_Data.ipf".
+	Routines for data-taking and interfacing with equipment, to be 
+	customized as needed for a particular experimental setup.  
+(4) "Expt_Analysis.ipf".
+	Routines and convention for data management, archiving, and graphing.  
+	Also includes routines to use with the command history and notebooks.  
+(5) "DAQ_GPIB.ipf", "DAQ_NIDAQmx.ipf", "DAQ_NIDAQ_Traditional.ipf", "DAQ_SerialPort.ipf",  and "DAQ_VISA.ipf". 
+	A set of "DAQ Procedures" for working with GPIB, NIDAQ, serial port, and VISA.  
+	(http://www.igorexchange.com/project/DAQ_Procedures)
+(6) "Driver_SR830.ipf", "Driver_SR530.ipf", "Driver_TDS3000.ipf", "Driver_TDS1000.ipf", and "Driver_TDS2004B_VISA.ipf".
+	Procedure files for Stanford Research Systems SR830 and SR530 lockin amplifiers and for Tektronix TDS scopes (1000, 2000, and 3000 series).  
+(7) "Expt_Graph_Utilities.ipf"
+	Utilities to graph 1D cuts through 2D data, or divide a baseline out of a 1D plot. 
+
+
+#### Getting started ####
+
+Ok, let's take a look at what this template can do!  
+	At first glance, you should see the Command window (with its history), 
+the Data Browser, and two additional panels.  
+	To begin, open the internal Procedure file of this template, which 
+will have automatically loaded some procedure files.  Note that if you 
+have Igor Pro 5 or earlier, you will need to comment out the conditional 
+compilation statements (#if) here, as well as in "Expt_Data".  Those 
+statements are meant to make it easier to share experiment files between 
+different computers (e.g., a data-taking computer with special XOPs 
+installed, and an analysis computer that's missing some XOPs).  As its 
+configured now, it checks whether the NIDAQmx XOP is installed, and if so, 
+loads extra procedure files.  You should customize this later for your use, 
+but for now, just make sure everything compiles.  
+	The "GPIB Control Panel" is a feature of "DAQ_GPIB", which may or may 
+not have been loaded, as described above.  It is a manual tool to help 
+troubleshoot GPIB issues.  To learn more, see the documentation inside 
+"DAQ_GPIB."  Feel free to close it.  
+	The "DataTypes" panel is a feature of "Expt_Data", and is usually 
+left open.  It allows you to select up to four sources of data to 
+record when running a general data-taking routine like do1d().  
+	The Data Browser should list several different waves, as well 
+as a folder labeled System.  The System folder contains variables 
+used by "DAQ_GPIB", "DAQ_NIDAQmx", and "Expt_Data" that you shouldn't
+need to touch.  
+	Notice that most of the waves end in "_" followed by a number.  
+That number is a serial number (or waveid) that is unique to each 
+data set, following the conventions of "Expt_Analysis".  The serial 
+number provides a unique reference to data sets (e.g., for writing in a lab 
+notebook) and a convenient way to work with data in Igor.  
+For example, run the command "shownum(1)".  A graph of a straight line
+should appear, with labeled axes and the source wave name annotated.  
+To look at the other data, just use their serial numbers.  
+	Now browse the Command History, which will show how I created the 
+data sets # 1 and # 2. Starting at the top, I used newday() to print a 
+large banner with the date, to make it easier to find information 
+in the history later.  I then used InitAll() to setup NIDAQmx and GPIB. 
+As commented in the history, I used do1d() to sweep the voltage of a 
+NIDAQ output channel, and to record that voltage with a NIDAQ input channel. 
+This created the data set # 1, which is the wave "ACHDAC0_1".  Next, 
+I used setval() to change the phase of a lockin amplifier over GPIB, 
+just as a demonstration.  Then I captured four traces from a Tektronix 
+oscilloscope and saved them as data # 2, using routines from 
+"DRIVER_TDS3000".  
+	The data sets # 1 and # 2 aren't very exciting, so I've loaded 
+two more example data sets, # 3 and # 4, for fun.  Both come from 
+a vapor-cell atomic clock.  Data # 3 came from do1d() (use shownote(3)
+to see the do1d() command that created it).  You can fit it with a 
+lorentzian ("lor" fit), and use some functions in the internal 
+Procedure file to print the full width at half max (FWHM), etc.  
+Or, you could explore the "1D-Graph Baseline Tool" macro with it.  
+Note that my user comment stored in the data's wavenote is 
+automatically appended to the upper right of the graph for # 3.  
+Data # 4 came from do2d(), and shownum(4) brings up two image plots.  
+Move the top graph to see the one below.  Give the "2D-Graph Profile 
+Utility" macro a try, which allows you to graph 1D slices through 
+2D plots.  
+	Hopefully this has given you a flavor of what's included in this 
+template.  I've tried to include documentation (header, table of 
+contents, comments) in each of the procedure files, including the 
+internal one.  The next step I'd suggest is to modify "Expt_Data" 
+to interface with your equipment through setval() and getval(), 
+and then to play with acquiring data using the DataTypes panel 
+and do1d() and do2d().  Best luck!  
